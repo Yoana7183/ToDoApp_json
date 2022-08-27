@@ -1,0 +1,60 @@
+html{
+  background-image: url("background.jpg");
+  background-repeat:no-repeat;
+  background-size: cover;
+  height: auto;
+  width: auto;
+  max-width: 500px;
+  margin: auto;
+  font-family:'Courier New', Courier, monospace;
+  font-size: 20px;
+}
+
+.inputDiv{
+margin-top: 30px;
+margin-bottom: 30px;
+}
+
+h2{
+  margin-top: 30px;
+margin-bottom: 30px;
+}
+
+#inputValue{
+  width: 20vw;
+  height: 7vh;
+  border-radius: 5px;
+  border: 0ch;
+  background-image: linear-gradient(to right, rgb(254, 254, 254), rgb(216, 230, 250))
+}
+
+li{
+  margin-top: 30px;
+  margin-bottom: 30px;
+  list-style: none;
+}
+
+#comp{
+  color: rgb(15, 6, 74);
+  margin-left: 20px;
+}
+
+button{
+  width: 5vw;
+  height: 5vh;
+  background-color: rgb(241, 245, 251);
+  border-radius: 7px;
+}
+
+#arrSize{
+  color:rgb(15, 6, 74);
+  float: right;
+  margin-top: 20px;
+  border: 0.2px solid black;
+  border-radius: 10px;
+  padding: 7px;
+}
+
+#addTodos{
+  background-color: rgb(241, 245, 251);
+}
