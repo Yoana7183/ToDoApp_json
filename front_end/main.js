@@ -6,16 +6,45 @@ const dom = {
     delete: document.getElementById('deleteTodo')
 
 }
-function render(todos) {
-    dom.todos.innerHTML = "";
-    todos.forEach(todo => {
-        dom.todos.innerHTML += `
+
+function toggle(todos) {
+    console.log(todos);
+    var totalTodos = todos.legth;
+    var completedTodos = 0;
+  
+    if (completedTodos === totalTodos) {
+        for (var i = 0; i < totalTodos; i++) {
+            todos[i].completed = false;
+
+            dom.todos.innerHTML = "";
+            todos.forEach(todo => {
+                dom.todos.innerHTML += `
+		<li data-id="${todo.id}" style="text-decoration: line-through data-name="${todo.title}"> ${todo.title}
+        <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
+        <button id="uncompleteTodo" type="button" onclick="uncompleteTodo()">Undone</button>
+        </li>`
+            })
+        }
+    } else {
+        for (var i = 0; i < totalTodos; i++) {
+            todos[i].completed = true;
+            dom.todos.innerHTML = "";
+            todos.forEach(todo => {
+                dom.todos.innerHTML += `
 		<li data-id="${todo.id}" data-name="${todo.title}"> ${todo.title}
         <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
         <button id="completeTodo" type="button" onclick="completeTodo()">Done</button>
         </li>`
-    })
+            })
+        }
+    }
+
 }
+
+
+
+
+
 
 function fetchTodos(url) {
     fetch(url)
@@ -26,8 +55,9 @@ function fetchTodos(url) {
         })
         .then(data => {
             todos = data;
-            render(todos)
+            toggle(todos)
         })
+
 }
 
 function addTodo(url, title) {
@@ -48,8 +78,11 @@ function addTodo(url, title) {
         .then(data => {
             todos.push(data);
             data = todos;
-            render(todos)
+            toggle(todos)
+            console.log(data.length);
+
         })
+
 }
 
 dom.btnAdd.addEventListener("click", addTodo);
@@ -80,6 +113,7 @@ function deleteTodo() {
 
         })
 
+
 }
 function completeTodo() {
 
@@ -105,20 +139,22 @@ function completeTodo() {
             else { console.log('Error! Information wasn\'t updated'); }
             return res
         })
-        // .then(res => res.json())
-        // .then(data => dom.todos.innerHTML = data)
-        // .catch(error => console.log(error))
+
 
         .then(data => {
             fetchTodos(baseUrl + '/todos')
         })
+
 }
+
+
+
 
 
 
 const baseUrl = 'http://localhost:3000';
 
-
+let todos;
 
 fetchTodos(baseUrl + '/todos');
 
