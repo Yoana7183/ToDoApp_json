@@ -1,33 +1,44 @@
 const dom = {
 
-    todosList: document.getElementById("displayTodos"),
+    todos: document.getElementById("displayTodos"),
     input: document.getElementById('inputValue'),
     btnAdd: document.getElementById('addTodos'),
     delete: document.getElementById('deleteTodo')
+
 }
 
-function renderTodos(todos) {
-    var text = "";
+function renderNOTcompletedTodos(todos) {
 
+    dom.todos.innerHTML = "";
     todos.forEach(todo => {
+        dom.todos.innerHTML += `
+		<li data-id="${todo.id}" data-name="${todo.title}"> ${todo.title}
+        <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
+        <button id="completeTodo" type="button" onclick="completeTodo()">Done</button>
+        </li>`
 
-        if (!todo.completed) {
-            text += `
-            <li data-id="${todo.id}" data-name="${todo.title}"> ${todo.title}
-            <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
-            <button id="completeTodo" type="button" onclick="completeTodo()">Done</button>
-            </li>`
-        } else {    
-            text += `
-	        <li data-id="${todo.id}" style="text-decoration: line-through" data-name="${todo.title}"> ${todo.title}
-            <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
-            <button id="uncompleteTodo" type="button" onclick="uncompleteTodo()">Undone</button>
-            </li>`
-        }
+
     })
 
-    dom.todosList.innerHTML = text;
 }
+function renderCompletedTodos(todos) {
+
+
+    dom.todos.innerHTML = "";
+    todos.forEach(todo => {
+        dom.todos.innerHTML += `
+	<li data-id="${todo.id}"style="text-decoration: line-through" data-name="${todo.title}"> ${todo.title}
+    <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
+    <button id="uncompleteTodo" type="button" onclick="uncompleteTodo()">Undone</button>
+    </li>`
+
+    })
+
+}
+
+
+
+
 
 function fetchTodos(url) {
     fetch(url)
@@ -38,7 +49,8 @@ function fetchTodos(url) {
         })
         .then(data => {
             todos = data;
-            renderTodos(todos)
+            renderNOTcompletedTodos(todos)
+
         })
 }
 
@@ -46,7 +58,7 @@ function addTodo(url, title) {
     dom.todos.innerHTML = '';
     const newTodo = {
         "title": title,
-        "completed": false
+        "completed": true
     };
 
     fetch(url, {
@@ -61,8 +73,10 @@ function addTodo(url, title) {
             todos.push(data);
             fetchTodos(baseUrl + '/todos')
         })
-}
 
+
+
+}
 dom.btnAdd.addEventListener("click", addTodo);
 
 function deleteTodo() {
@@ -86,39 +100,13 @@ function deleteTodo() {
         .then(data => {
             todos.splice(data);
             fetchTodos(baseUrl + '/todos')
+
+
         })
 
 }
 
 function completeTodo() {
-
-    const btn = event.target;
-    const index = parseInt(btn.parentElement.getAttribute("data-id"));
-    const todoTitle = btn.parentElement.getAttribute("data-name");
-
-    url = baseUrl + '/todos/' + index;
-
-    fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(
-            {
-                "completed": true,
-                "title": todoTitle
-
-            }
-        )
-    })
-        .then(res => {
-            if (res.ok) { console.log('Successful Update JSON DB TRUE to FALSE') }
-            else { console.log('Error! Information wasn\'t updated'); }
-            return res
-        })
-
-    fetchTodos(baseUrl + '/todos')
-}
-
-function uncompleteTodo() {
 
     const btn = event.target;
     const index = parseInt(btn.parentElement.getAttribute("data-id"));
@@ -138,17 +126,58 @@ function uncompleteTodo() {
         )
     })
         .then(res => {
+            if (res.ok) { console.log('Successful Update JSON DB TRUE to FALSE') }
+            else { console.log('Error! Information wasn\'t updated'); }
+            return res
+        })
+        .then(data => {
+            renderCompletedTodos(todos)
+
+
+
+        })
+
+
+
+}
+
+function uncompleteTodo() {
+
+    const btn = event.target;
+    const index = parseInt(btn.parentElement.getAttribute("data-id"));
+    const todoTitle = btn.parentElement.getAttribute("data-name");
+
+    url = baseUrl + '/todos/' + index;
+
+    fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+            {
+                "completed": true,
+                "title": todoTitle
+
+            }
+        )
+    })
+        .then(res => {
             if (res.ok) { console.log('Successful Update JSON DB False to True') }
             else { console.log('Error! Information wasn\'t updated'); }
             return res
         })
+        .then(data => {
+            fetchTodos(baseUrl + '/todos')
+        })
 
-    fetchTodos(baseUrl + '/todos')
+
+
 }
 
 const baseUrl = 'http://localhost:3000';
 fetchTodos(baseUrl + '/todos');
 let todos;
+
+
 
 dom.btnAdd.addEventListener('click', function (e) {
     const todoTitle = dom.input.value;

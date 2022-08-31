@@ -1,50 +1,33 @@
 const dom = {
 
-    todos: document.getElementById("displayTodos"),
+    todosList: document.getElementById("displayTodos"),
     input: document.getElementById('inputValue'),
     btnAdd: document.getElementById('addTodos'),
     delete: document.getElementById('deleteTodo')
-
 }
 
-function toggle(todos) {
-    console.log(todos);
-    var totalTodos = todos.legth;
-    var completedTodos = 0;
-  
-    if (completedTodos === totalTodos) {
-        for (var i = 0; i < totalTodos; i++) {
-            todos[i].completed = false;
+function renderTodos(todos) {
+    var text = "";
 
-            dom.todos.innerHTML = "";
-            todos.forEach(todo => {
-                dom.todos.innerHTML += `
-		<li data-id="${todo.id}" style="text-decoration: line-through data-name="${todo.title}"> ${todo.title}
-        <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
-        <button id="uncompleteTodo" type="button" onclick="uncompleteTodo()">Undone</button>
-        </li>`
-            })
-        }
-    } else {
-        for (var i = 0; i < totalTodos; i++) {
-            todos[i].completed = true;
-            dom.todos.innerHTML = "";
-            todos.forEach(todo => {
-                dom.todos.innerHTML += `
-		<li data-id="${todo.id}" data-name="${todo.title}"> ${todo.title}
-        <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
-        <button id="completeTodo" type="button" onclick="completeTodo()">Done</button>
-        </li>`
-            })
-        }
-    }
+    todos.forEach(todo => {
 
+        if (!todo.completed) {
+            text += `
+            <li data-id="${todo.id}" data-name="${todo.title}"> ${todo.title}
+            <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
+            <button id="completeTodo" type="button" onclick="completeTodo()">Done</button>
+            </li>`
+        } else {    
+            text += `
+	        <li data-id="${todo.id}" style="text-decoration: line-through" data-name="${todo.title}"> ${todo.title}
+            <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
+            <button id="uncompleteTodo" type="button" onclick="uncompleteTodo()">Undone</button>
+            </li>`
+        }
+    })
+
+    dom.todosList.innerHTML = text;
 }
-
-
-
-
-
 
 function fetchTodos(url) {
     fetch(url)
@@ -55,13 +38,12 @@ function fetchTodos(url) {
         })
         .then(data => {
             todos = data;
-            toggle(todos)
+            renderTodos(todos)
         })
-
 }
 
 function addTodo(url, title) {
-    dom.todos.innerHTML = '';
+    
     const newTodo = {
         "title": title,
         "completed": false
@@ -77,17 +59,11 @@ function addTodo(url, title) {
         .then(r => r.json())
         .then(data => {
             todos.push(data);
-            data = todos;
-            toggle(todos)
-            console.log(data.length);
-
+            fetchTodos(baseUrl + '/todos')
         })
-
 }
 
 dom.btnAdd.addEventListener("click", addTodo);
-
-
 
 function deleteTodo() {
 
@@ -110,11 +86,10 @@ function deleteTodo() {
         .then(data => {
             todos.splice(data);
             fetchTodos(baseUrl + '/todos')
-
         })
 
-
 }
+
 function completeTodo() {
 
     const btn = event.target;
@@ -135,30 +110,48 @@ function completeTodo() {
         )
     })
         .then(res => {
-            if (res.ok) { console.log('Successful Update JSON DB') }
+            if (res.ok) { console.log('Successful Update JSON DB TRUE to FALSE') }
             else { console.log('Error! Information wasn\'t updated'); }
             return res
         })
 
-
-        .then(data => {
-            fetchTodos(baseUrl + '/todos')
-        })
-
+    fetchTodos(baseUrl + '/todos')
 }
 
+function uncompleteTodo() {
 
+    const btn = event.target;
+    const index = parseInt(btn.parentElement.getAttribute("data-id"));
+    const todoTitle = btn.parentElement.getAttribute("data-name");
 
+    url = baseUrl + '/todos/' + index;
 
+    fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+            {
+                "completed": false,
+                "title": todoTitle
 
+            }
+        )
+    })
+        .then(res => {
+            if (res.ok) { console.log('Successful Update JSON DB False to True') }
+            else { console.log('Error! Information wasn\'t updated'); }
+            return res
+        })
+
+    fetchTodos(baseUrl + '/todos')
+}
 
 const baseUrl = 'http://localhost:3000';
-
-let todos;
-
 fetchTodos(baseUrl + '/todos');
+let todos;
 
 dom.btnAdd.addEventListener('click', function (e) {
     const todoTitle = dom.input.value;
     addTodo(baseUrl + '/todos', todoTitle);
 })
+// func workd, but the completed function cheked as a completed all todos. In db is correct cheked only the target obj.
