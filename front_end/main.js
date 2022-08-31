@@ -10,14 +10,14 @@ function renderTodos(todos) {
     var text = "";
 
     todos.forEach(todo => {
-
+        dom.todosList.innerHTML = '';
         if (!todo.completed) {
             text += `
             <li data-id="${todo.id}" data-name="${todo.title}"> ${todo.title}
             <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
             <button id="completeTodo" type="button" onclick="completeTodo()">Done</button>
             </li>`
-        } else {    
+        } else {
             text += `
 	        <li data-id="${todo.id}" style="text-decoration: line-through" data-name="${todo.title}"> ${todo.title}
             <button id="deleteTodo" type="button" onclick="deleteTodo()">Delete</button>
@@ -43,11 +43,13 @@ function fetchTodos(url) {
 }
 
 function addTodo(url, title) {
-    
+
     const newTodo = {
         "title": title,
         "completed": false
     };
+
+
 
     fetch(url, {
         method: 'post',
@@ -59,8 +61,10 @@ function addTodo(url, title) {
         .then(r => r.json())
         .then(data => {
             todos.push(data);
+            window.localStorage.setItem('Added todo', JSON.stringify(todos))
             fetchTodos(baseUrl + '/todos')
         })
+
 }
 
 dom.btnAdd.addEventListener("click", addTodo);
@@ -71,7 +75,7 @@ function deleteTodo() {
     const index = parseInt(btn.parentElement.getAttribute("data-id"));
 
     url = baseUrl + '/todos/' + index;
-
+    window.localStorage.setItem('Deleted todo', JSON.stringify(todos))
     fetch(url, {
         method: 'DELETE',
         headers: {
@@ -84,8 +88,10 @@ function deleteTodo() {
             return res
         })
         .then(data => {
+
             todos.splice(data);
             fetchTodos(baseUrl + '/todos')
+
         })
 
 }
@@ -97,25 +103,24 @@ function completeTodo() {
     const todoTitle = btn.parentElement.getAttribute("data-name");
 
     url = baseUrl + '/todos/' + index;
-
+    let doneTodods = {
+        "completed": true,
+        "title": todoTitle
+    };
     fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(
-            {
-                "completed": true,
-                "title": todoTitle
+        body: JSON.stringify(doneTodods)
 
-            }
-        )
     })
         .then(res => {
             if (res.ok) { console.log('Successful Update JSON DB TRUE to FALSE') }
             else { console.log('Error! Information wasn\'t updated'); }
             return res
         })
-
+    window.localStorage.setItem('Completed todo', JSON.stringify(todos))
     fetchTodos(baseUrl + '/todos')
+
 }
 
 function uncompleteTodo() {
@@ -142,8 +147,9 @@ function uncompleteTodo() {
             else { console.log('Error! Information wasn\'t updated'); }
             return res
         })
-
+    window.localStorage.setItem('Uncompleted todo', JSON.stringify(todos))
     fetchTodos(baseUrl + '/todos')
+
 }
 
 const baseUrl = 'http://localhost:3000';
@@ -154,4 +160,8 @@ dom.btnAdd.addEventListener('click', function (e) {
     const todoTitle = dom.input.value;
     addTodo(baseUrl + '/todos', todoTitle);
 })
-// func workd, but the completed function cheked as a completed all todos. In db is correct cheked only the target obj.
+dom.input.addEventListener('keypress', function (e) {
+    if (e.keyCode === 13) {
+        addTodo()
+    };
+})
