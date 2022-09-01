@@ -66,7 +66,6 @@ function addTodo(url, title) {
 }
 
 function deleteTodo() {
-
     const btn = event.target;
     const index = parseInt(btn.parentElement.getAttribute("data-id"));
 
