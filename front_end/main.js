@@ -49,8 +49,6 @@ function addTodo(url, title) {
         "completed": false
     };
 
-
-
     fetch(url, {
         method: 'post',
         body: JSON.stringify(newTodo),
@@ -88,10 +86,8 @@ function deleteTodo() {
             return res
         })
         .then(data => {
-
             todos.splice(data);
             fetchTodos(baseUrl + '/todos')
-
         })
 
 }
@@ -118,9 +114,10 @@ function completeTodo() {
             else { console.log('Error! Information wasn\'t updated'); }
             return res
         })
-    window.localStorage.setItem('Completed todo', JSON.stringify(todos))
-    fetchTodos(baseUrl + '/todos')
-
+        .then(data => {
+            window.localStorage.setItem('Completed todo', JSON.stringify(todos))
+            fetchTodos(baseUrl + '/todos')
+        })
 }
 
 function uncompleteTodo() {
@@ -138,7 +135,6 @@ function uncompleteTodo() {
             {
                 "completed": false,
                 "title": todoTitle
-
             }
         )
     })
@@ -147,8 +143,10 @@ function uncompleteTodo() {
             else { console.log('Error! Information wasn\'t updated'); }
             return res
         })
-    window.localStorage.setItem('Uncompleted todo', JSON.stringify(todos))
-    fetchTodos(baseUrl + '/todos')
+        .then(data => {
+            window.localStorage.setItem('Completed todo', JSON.stringify(todos))
+            fetchTodos(baseUrl + '/todos')
+        })
 
 }
 
