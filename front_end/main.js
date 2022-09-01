@@ -65,8 +65,6 @@ function addTodo(url, title) {
 
 }
 
-dom.btnAdd.addEventListener("click", addTodo);
-
 function deleteTodo() {
 
     const btn = event.target;
@@ -157,9 +155,4 @@ let todos;
 dom.btnAdd.addEventListener('click', function (e) {
     const todoTitle = dom.input.value;
     addTodo(baseUrl + '/todos', todoTitle);
-})
-dom.input.addEventListener('keypress', function (e) {
-    if (e.keyCode === 13) {
-        addTodo()
-    };
 })
